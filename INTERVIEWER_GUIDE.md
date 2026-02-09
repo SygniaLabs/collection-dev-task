@@ -14,7 +14,9 @@
 | **3. Bottleneck Analysis** | 5–10 min | Candidate reads code, identifies problems, discusses optimization strategy |
 | **4. Hands-on Implementation** | 25–30 min | Candidate implements optimizations, runs benchmarks, explains trade-offs |
 | **5. Architecture Discussion** | 15–20 min | Production scaling, cost analysis, new log types, monitoring, what-ifs |
-| **Buffer** | ~5 min | Overflow / wrap-up |
+| **Buffer** | ~10 min | Setup issues, overflow, wrap-up |
+
+**Note:** The hands-on coding is intentionally ~30 minutes. With intro, setup potential issues (Codespaces boot, network, etc.), and discussion, this fills the 1.5 hour slot. The 50K line dataset is sized to complete processing in 1-5 minutes even on slower machines.
 
 ### Phase 2 Tips
 - Walk through `pipeline.py` together — show them the Reader and Processor
@@ -31,6 +33,7 @@
 - If they're stuck after 10 min, you can hint: *"What if the Reader sent messages in batches?"*
 - Ask them to run the benchmark periodically to see improvement
 - If they finish batching quickly, prompt: *"What about the database schema?"*
+- Don't worry if they don't finish everything — we're evaluating approach, not completion
 
 ---
 
@@ -161,6 +164,45 @@ Files → [Reader] → redis:raw_queue
 - **Configurable batch size with timeout** — "flush after N messages OR T seconds, whichever comes first"
 - **Monitoring** — queue depth, processing latency, error rate, throughput metrics
 - **Error recovery** — what happens if PG goes down mid-batch?
+
+---
+
+## Benchmark Interpretation — Percentage-Based Scoring
+
+**⚠️ Do NOT use absolute throughput thresholds.** Machine performance varies dramatically:
+- GitHub Codespaces (2-core VM): ~500-2,000 rec/sec baseline
+- Local laptop (8-core): ~2,000-8,000 rec/sec baseline  
+- M3 Max (12-core): ~5,000-15,000 rec/sec baseline
+
+### What to Evaluate
+
+1. **Relative improvement** — Did they achieve meaningful speedup?
+2. **Code quality** — Is the implementation clean, configurable, maintainable?
+3. **Understanding** — Can they explain *why* each optimization helps and estimate cost impact?
+
+### Typical Improvement Ranges (50K records)
+
+| Implementation Level | Expected Speedup | Baseline Time | Optimized Time |
+|---------------------|------------------|---------------|----------------|
+| **Naive (baseline)** | 1x | 30-120 sec | — |
+| **+ Basic Batching** | **5-10x** | 30-120 sec | 3-15 sec |
+| **+ Schema + Indexes** | **10-20x** | 30-120 sec | 2-6 sec |
+| **+ Compression** | **15-25x** | 30-120 sec | 1-4 sec |
+| **+ Concurrency** | **20-40x** | 30-120 sec | 1-3 sec |
+
+**What matters:** Did they move down the table? Not the exact seconds.
+
+### Red Flags
+- No measurable improvement after 20 minutes of work
+- Can't explain why their changes should help
+- Breaks correctness (benchmark queries fail)
+- Overly complex solution for minimal gain
+
+### Green Flags
+- 5x+ improvement with clean batching implementation
+- Discusses trade-offs (batch size vs. latency, memory, etc.)
+- Mentions cost implications (SQS pricing, compute, storage)
+- Suggests monitoring/observability improvements
 
 ---
 

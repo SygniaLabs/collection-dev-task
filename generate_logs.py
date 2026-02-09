@@ -19,6 +19,8 @@ import os
 import random
 
 OUTPUT_DIR = os.environ.get("LOG_DIR", "./data/logs")
+NUM_FILES = 5
+LINES_PER_FILE = 10_000  # 50K total lines across all files (faster for interviews)
 
 # ─── Seed for reproducible data ─────────────────────────────────────────────
 random.seed(42)
@@ -92,7 +94,7 @@ LOG_TYPE_WEIGHTS = [0.5, 0.3, 0.2]  # firewall-heavy, realistic distribution
 def main():
     parser = argparse.ArgumentParser(description="Generate test log files for the pipeline challenge.")
     parser.add_argument("--files", type=int, default=5, help="Number of log files to generate (default: 5)")
-    parser.add_argument("--lines", type=int, default=50_000, help="Lines per file (default: 50,000)")
+    parser.add_argument("--lines", type=int, default=10_000, help="Lines per file (default: 10,000)")
     args = parser.parse_args()
 
     num_files = args.files

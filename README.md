@@ -36,7 +36,7 @@ The pipeline handles three types of security logs (mixed together in each file):
 ### Option A: GitHub Codespaces (Recommended)
 
 1. Click the green **"Code"** button → **"Codespaces"** → **"Create codespace on main"**
-2. Wait for the environment to build (~2 minutes). PostgreSQL, Redis, and test data are set up automatically.
+2. Wait for the environment to build (~2 minutes). PostgreSQL, Redis, and test data (50K log lines) are set up automatically.
 3. Open terminals and start working!
 
 ### Option B: Local Development
@@ -51,7 +51,7 @@ docker compose up -d
 # 3. Install Python dependencies
 pip install -r requirements.txt
 
-# 4. Generate test data (250K log lines)
+# 4. Generate test data (50K log lines by default)
 python generate_logs.py
 ```
 
@@ -78,17 +78,15 @@ The benchmark will:
 
 **Optimize this pipeline for throughput and cost.** The current implementation works, but is far too slow and expensive for production-scale data (millions of logs/day).
 
-Consider these areas:
+**Some areas to consider** (you don't need to address all of them):
 
 | Area | Question |
 |------|----------|
-| **Batching** | Where are we doing unnecessary individual round-trips? |
-| **Compression** | How can we reduce message sizes on the queue? |
-| **Schema Design** | Is one flat JSONB table optimal? See `sample_queries.sql` for query patterns. |
-| **Concurrency** | Can we process data in parallel? |
-| **Architecture** | Should the Processor be split? Can components scale independently? |
+| **Performance** | Where are the bottlenecks? What's causing unnecessary overhead? |
+| **Cost** | What would this cost on AWS at scale? How can we reduce it? |
+| **Schema Design** | Is the current schema optimal for the query patterns in `sample_queries.sql`? |
+| **Scalability** | Can components scale independently? How would you handle 10x the volume? |
 | **Extensibility** | How easy is it to add a new log type (e.g., proxy logs)? |
-| **Cost** | What would this cost on AWS at scale? How does each optimization affect cost? |
 
 Use `python benchmark.py` before and after changes to measure your improvement.
 
@@ -100,19 +98,16 @@ Use `python benchmark.py` before and after changes to measure your improvement.
 | ✅ | Install additional Python packages |
 | ✅ | Restructure, split, or rewrite any code |
 | ✅ | Add new files, scripts, or processes |
-| ❌ | Do NOT replace PostgreSQL with another database |
-| ❌ | Do NOT replace Redis with another queue |
-| ⏱ | Target time: ~30 minutes |
 
 ## Files
 
-| File | Description |
-|------|-------------|
-| `pipeline.py` | ⭐ The naive implementation — **this is what you optimize** |
-| `benchmark.py` | Throughput measurement tool |
-| `generate_logs.py` | Log file generator (pre-run, no need to modify) |
+| File | Description                                                                    |
+|------|--------------------------------------------------------------------------------|
+| `pipeline.py` | The naive implementation                                                       |
+| `benchmark.py` | Throughput measurement tool                                                    |
+| `generate_logs.py` | Log file generator (pre-run, no need to modify)                                |
 | `sample_queries.sql` | The types of queries analysts run — your schema should support these efficiently |
-| `docker-compose.yml` | PostgreSQL + Redis infrastructure |
+| `docker-compose.yml` | PostgreSQL + Redis infrastructure                                              |
 
-## Good Luck! 🚀
+## Good Luck!
 
