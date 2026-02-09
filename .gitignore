@@ -27,3 +27,4 @@ Thumbs.db
 # Docker volumes
 pgdata/
 
+INTERVIEWER_GUIDE.md
