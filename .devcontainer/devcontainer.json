@@ -1,0 +1,30 @@
+{
+    "name": "Pipeline Challenge",
+    "dockerComposeFile": "docker-compose.yml",
+    "service": "workspace",
+    "workspaceFolder": "/workspace",
+    "shutdownAction": "stopCompose",
+
+    "containerEnv": {
+        "REDIS_HOST": "redis",
+        "PG_HOST": "postgres",
+        "PG_DB": "pipeline",
+        "PG_USER": "pipeline",
+        "PG_PASSWORD": "pipeline"
+    },
+
+    "postCreateCommand": "pip install -r requirements.txt && python generate_logs.py",
+
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance"
+            ],
+            "settings": {
+                "python.defaultInterpreterPath": "/usr/local/bin/python"
+            }
+        }
+    }
+}
+
