@@ -9,10 +9,11 @@ This repo contains a **working implementation** of a simplified version of our p
 ## Architecture
 
 ```
-┌─────────────┐                     ┌─────────────┐                         ┌────────────┐
-│  Log Files   │ ──────────────────► │ Redis Queue  │ ──────────────────────► │ PostgreSQL  │
-│  (on disk)   │      READER         │              │       PROCESSOR         │            │
-└─────────────┘                      └─────────────┘                         └────────────┘
+┌────────────┐        ┌──────────┐        ┌─────────────┐        ┌───────────┐        ┌────────────┐
+│  Log Files │  read  │  Reader  │ LPUSH  │ Redis Queue │ BRPOP  │ Processor │ INSERT │ PostgreSQL │
+│ (data/logs)│───────►│          │───────►│ (log_queue) │───────►│ (parse &  │───────►│(logs table)│
+│   *.log    │        │          │        │             │        │ classify) │        │            │
+└────────────┘        └──────────┘        └─────────────┘        └───────────┘        └────────────┘
 ```
 
 The pipeline has two components:
