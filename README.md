@@ -21,6 +21,17 @@ The pipeline has two components:
 - **Reader** — Reads raw log files from disk and publishes to a Redis queue
 - **Processor** — Consumes from the Redis queue, parses each log line into structured fields, and inserts into PostgreSQL
 
+## Production Deployment
+
+In production, this pipeline runs as:
+
+- **Reader** — EC2 instance
+- **Processor** — EC2 instance (separate)
+- **Queue** — Amazon SQS
+- **Database** — Amazon RDS Postgres, in a **different AZ** than the EC2s
+
+Locally we use Redis as a stand-in for SQS, and Postgres in Docker — see Quick Start below.
+
 ## Log Types
 
 The pipeline handles three types of security logs (mixed together in each file):
@@ -76,11 +87,13 @@ The benchmark will:
 
 ## Your Task
 
-**Optimize this pipeline for production scale.** The current implementation works, but at our volume (millions of logs/day), performance and cost matter.
+**Optimize this pipeline for production scale.** The current implementation works, but at our volume (millions of logs/day), performance and infrastructure cost matter.
+
+In **15 minutes**, review the code and identify the **top 3 changes** that improve throughput **and** reduce infra spend on the production topology above. Then prompt an AI assistant to implement them.
+
+Both KPIs matter — a change that helps only one is fine, but your 3 picks together should move both.
 
 See `sample_queries.sql` for the types of queries analysts run — the system should support these efficiently.
-
-Use `python benchmark.py` before and after changes to measure your improvement.
 
 ## Rules
 
